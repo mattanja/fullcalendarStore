@@ -27,11 +27,16 @@ namespace fullcalendarStore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseMySql(Configuration.GetConnectionString("ApplicationDbConnection"))
+            );
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            services.AddDbContext<FullcalendarStoreContext>(options =>
+                options.UseMySql(Configuration.GetConnectionString("FullcalendarStoreConnection"))
+            );
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
