@@ -11,35 +11,94 @@
 
 $(document).ready(function() {
 
-    var calendarItemsUrl = 'http://localhost:32770/api/CalendarItems';
+    var calendarStartDate = '2018-03-05';
+    var calendarItemsUrl = 'http://localhost:32771/api/CalendarItems';
+    var startDate = moment(calendarStartDate).isValid() ? moment(calendarStartDate) : moment();
+    var settings = {
+      aspectRatio: 2,
+      firstDay: 0,
+      firstHour: 0,
+    };
 
-    $('#calendar').fullCalendar({
+    var calendarDomElement = $('#calendar');
+
+    calendarDomElement.fullCalendar({
       header: {
         left: 'prev,next today',
         center: 'title',
         right: 'month,agendaWeek,agendaDay'
       },
-      defaultDate: '2017-12-12',
-      navLinks: true, // can click day/week names to navigate views
+      year: startDate.year(),
+      month: startDate.month(),
+      date: startDate.date(),
+      defaultView: 'agendaWeek',
+      aspectRatio: settings.aspectRatio || 2, // Hint: larger numbers make smaller heights
+      firstDay: settings.firstDay || 0, // Sunday=0, Monday=1 etc
+      firstHour: settings.firstHour || 0,
+      axisFormat: 'HH:mm',
+      timeFormat: { agenda: 'HH:mm{ - HH:mm}', '': 'HH:mm' },
+      dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+      //dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      dayNamesShort: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+      //dayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+      monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
+      //monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      weekNumberTitle: 'KW', // 'W'
+      // columnFormat: {
+      //     month: 'ddd',
+      //     week: 'ddd dd.MM.',
+      //     day: 'dddd dd.MM.',
+      // },
+      // titleFormat: {
+      //     month: 'MMMM YYYY',                             // September 2009
+      //     week: "D [MMM] [ YYYY]{ '&#8212;' D MMM YYYY}", // Sep 7 - 13 2009
+      //     day: 'DDDD, D MMM YYYY'                  // Tuesday, Sep 8, 2009
+      // },
       selectable: true,
       selectHelper: true,
-      select: function(start, end) {
+      select: function(start, end, allDay) {
         var title = prompt('Event Title:');
         var eventData;
         if (title) {
           eventData = {
             title: title,
             start: start,
-            end: end
+            end: end,
+            allDay: allDay,
+            username: "username",
           };
-          $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+          $.ajax({
+            url: calendarItemsUrl,
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify({
+              //id:
+              title: eventData.title,
+              start: moment(eventData.start).format(),
+              end: moment(eventData.end).format(),
+              username: "username",
+            }),
+            success: function(result, status, jqx) {
+              calendarDomElement.fullCalendar('renderEvent', eventData, true); // stick? = true
+            },
+            error: function(jqXhr, textStatus, errorThrown) {
+              alert("Error on saving the new item.");
+              console.log("error!", jqXhr, textStatus, errorThrown);
+            },
+          });
         }
-        $('#calendar').fullCalendar('unselect');
+        calendarDomElement.fullCalendar('unselect');
       },
-      editable: true,
-      eventLimit: true, // allow "more" link when too many events
       events: {
-          
+        url: calendarItemsUrl,
+        error: function() {
+          $('#script-warning').show();
+        }
+      },
+      eventRender: function(event, element) {
+        // Add username to template
+        element.find('.fc-event-title').after('<div class="sharedcal-event-username">'+event.feuser+'</div>');
       }
     });
 
