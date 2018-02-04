@@ -20,6 +20,9 @@ namespace fullcalendarStore
             var webhost = BuildWebHost(args);
             var scope = webhost.Services.CreateScope();
 
+            // Quick & dirty workaround waiting for database Docker container
+            System.Threading.Thread.Sleep(5000);
+
             using (var applicationDb = scope.ServiceProvider.GetService<ApplicationDbContext>())
             {
                 applicationDb.Database.Migrate();

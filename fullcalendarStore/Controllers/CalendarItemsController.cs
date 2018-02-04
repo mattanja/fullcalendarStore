@@ -23,9 +23,21 @@ namespace fullcalendarStore.Controllers
 
         // GET: api/CalendarItems
         [HttpGet]
-        public IEnumerable<CalendarItem> GetCalendarItems()
+        public IEnumerable<CalendarItem> GetCalendarItems(DateTime? start, DateTime? end)
         {
-            return _context.CalendarItems;
+            var query = _context.CalendarItems.AsQueryable();
+
+            if (start.HasValue)
+            {
+                query = query.Where(x => x.End >= start.Value);
+            }
+
+            if (end.HasValue)
+            {
+                query = query.Where(x => x.Start <= end.Value);
+            }
+
+            return query;
         }
 
         // GET: api/CalendarItems/5
@@ -116,6 +128,13 @@ namespace fullcalendarStore.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(calendarItem);
+        }
+
+        // GET: api/CalendarItems/Count
+        [HttpGet("Count")]
+        public int GetCalendarItemCount()
+        {
+            return _context.CalendarItems.Count();
         }
 
         private bool CalendarItemExists(Guid id)
