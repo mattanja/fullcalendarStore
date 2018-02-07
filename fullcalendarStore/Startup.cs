@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using fullcalendarStore.Data;
 using fullcalendarStore.Models;
 using fullcalendarStore.Services;
+using fullcalendarStore.Configuration;
 
 namespace fullcalendarStore
 {
@@ -26,6 +27,9 @@ namespace fullcalendarStore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Provide app settings based on configuration
+            services.AddSingleton<IAppSettings>(new AppSettings(Configuration));
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(Configuration.GetConnectionString("ApplicationDbConnection"))
             );
