@@ -17,12 +17,18 @@ namespace fullcalendarStore.Configuration
         /// First day of week (0=Sun, 1=Mon, etc.)
         /// </summary>
         int CalendarFirstDay { get; }
+
+        /// <summary>
+        /// Url to fetch proxied calendar items from.
+        /// </summary>
+        String CalendarProxyFetchUrl { get; }
     }
 
     public class AppSettings : IAppSettings
     {
         private string calendarInitialDisplayDate = null;
         private int calendarFirstDay = 0;
+        private string calendarProxyFetchUrl = String.Empty;
 
         public AppSettings(IConfiguration configuration)
         {
@@ -38,6 +44,10 @@ namespace fullcalendarStore.Configuration
                     calendarFirstDay = int.Parse(configuration["CalendarFirstDay"]);
                 }
 
+                if (!String.IsNullOrWhiteSpace(configuration["CalendarProxyFetchUrl"]))
+                {
+                    calendarProxyFetchUrl = configuration["CalendarProxyFetchUrl"];
+                }
             }
             catch (Exception)
             {
@@ -48,5 +58,7 @@ namespace fullcalendarStore.Configuration
         public string CalendarInitialDisplayDate => calendarInitialDisplayDate ?? DateTime.Today.ToString("yyyy-MM-dd");
 
         public int CalendarFirstDay => calendarFirstDay;
+
+        public string CalendarProxyFetchUrl => calendarProxyFetchUrl;
     }
 }

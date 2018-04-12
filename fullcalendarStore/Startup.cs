@@ -30,6 +30,9 @@ namespace fullcalendarStore
             // Provide app settings based on configuration
             services.AddSingleton<IAppSettings>(new AppSettings(Configuration));
 
+            // Add cache for calendar items
+            services.AddSingleton<CalendarProxyService>();
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(Configuration.GetConnectionString("ApplicationDbConnection"))
             );
