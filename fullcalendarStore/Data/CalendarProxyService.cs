@@ -6,22 +6,48 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace fullcalendarStore.Data
 {
     public class CalendarProxyService
     {
-        private IEnumerable<CalendarItem> calendarItems;
+        private IEnumerable<CalendarItem> calendarItems = new CalendarItem[] { };
         private IAppSettings appSettings;
+        private Timer refreshTimer;
 
         public CalendarProxyService(IAppSettings appSettings)
         {
             this.appSettings = appSettings;
-            this.InitializeCalendarItemsCache();
+
+            // Update now and every 1h
+            refreshTimer = new Timer(this.RefreshTimerCallback, null, 0, 1000*60*60);
         }
 
-        private void InitializeCalendarItemsCache()
+        private void RefreshTimerCallback(object state)
+        {
+            this.TryUpdateCalendarItemsCache();
+        }
+
+        public IEnumerable<CalendarItem> GetCalendarItems(DateTime? start, DateTime? end)
+        {
+            var query = this.calendarItems.AsQueryable();
+
+            if (start.HasValue)
+            {
+                query = query.Where(x => x.End >= start.Value);
+            }
+
+            if (end.HasValue)
+            {
+                query = query.Where(x => x.Start <= end.Value);
+            }
+
+            return query;
+        }
+
+        public void TryUpdateCalendarItemsCache()
         {
             try
             {
@@ -43,14 +69,12 @@ namespace fullcalendarStore.Data
                     else
                     {
                         Console.Write($"Error getting calendar items, Status {response.Status}");
-                        this.calendarItems = new List<CalendarItem>();
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.Write(ex.ToString());
-                this.calendarItems = new List<CalendarItem>();
             }
         }
 

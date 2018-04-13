@@ -24,19 +24,14 @@ namespace fullcalendarStore.Controllers
         [HttpGet]
         public IEnumerable<CalendarItem> GetCalendarItems(DateTime? start, DateTime? end)
         {
-            var query = this.calendarProxyService.CalendarItems.AsQueryable();
+            return this.calendarProxyService.GetCalendarItems(start, end);
+        }
 
-            if (start.HasValue)
-            {
-                query = query.Where(x => x.End >= start.Value);
-            }
-
-            if (end.HasValue)
-            {
-                query = query.Where(x => x.Start <= end.Value);
-            }
-
-            return query;
+        [HttpGet]
+        [Route("Update")]
+        public void Update()
+        {
+            this.calendarProxyService.TryUpdateCalendarItemsCache();
         }
     }
 }
