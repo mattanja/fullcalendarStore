@@ -33,5 +33,12 @@ namespace fullcalendarStore.Controllers
         {
             this.calendarProxyService.TryUpdateCalendarItemsCache();
         }
+
+        [HttpGet]
+        [Route("TodayView")]
+        public IActionResult TodayView()
+        {
+            return View(this.calendarProxyService.GetCalendarItems(DateTime.Today, DateTime.Today.AddDays(1)));
+        }
     }
 }

@@ -32,7 +32,7 @@ namespace fullcalendarStore
             services.AddSingleton<IAppSettings>(appSettings);
 
             // Add cache for calendar items
-            services.AddSingleton<CalendarProxyService>(new CalendarProxyService(appSettings));
+            services.AddSingleton<CalendarProxyService>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(Configuration.GetConnectionString("ApplicationDbConnection"))
@@ -53,8 +53,11 @@ namespace fullcalendarStore
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
+            // Instantiate singleton
+            serviceProvider.GetService<CalendarProxyService>();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
