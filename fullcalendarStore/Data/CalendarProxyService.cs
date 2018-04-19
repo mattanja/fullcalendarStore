@@ -41,7 +41,7 @@ namespace fullcalendarStore.Data
 
             if (end.HasValue)
             {
-                query = query.Where(x => x.Start <= end.Value);
+                query = query.Where(x => x.Start < end.Value);
             }
 
             return query;
