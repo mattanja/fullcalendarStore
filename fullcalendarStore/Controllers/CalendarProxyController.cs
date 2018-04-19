@@ -38,7 +38,12 @@ namespace fullcalendarStore.Controllers
         [Route("TodayView")]
         public IActionResult TodayView()
         {
-            return View(this.calendarProxyService.GetCalendarItems(DateTime.Today, DateTime.Today.AddDays(1)));
+            return View(
+                this.calendarProxyService
+                    .GetCalendarItems(DateTime.Today, DateTime.Today.AddDays(1))
+                    .Select(x => x.Title)
+                    .Distinct()
+            );
         }
     }
 }

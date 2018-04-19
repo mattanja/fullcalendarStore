@@ -1,4 +1,4 @@
-﻿@model IEnumerable<fullcalendarStore.Models.CalendarItem>
+﻿@model IEnumerable<String>
 @{
     Layout = "";
 }
@@ -30,7 +30,7 @@
 <ul>
     @foreach (var item in Model)
     {
-        <li>@Html.DisplayFor(modelItem => item.Title)</li>
+        <li>@Html.DisplayFor(modelItem => item)</li>
     }
 </ul>
 
