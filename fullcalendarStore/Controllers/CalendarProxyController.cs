@@ -39,10 +39,26 @@ namespace fullcalendarStore.Controllers
         public IActionResult TodayView()
         {
             return View(
+                "ListView",
                 this.calendarProxyService
                     .GetCalendarItems(DateTime.Today, DateTime.Today.AddDays(1))
-                    .Select(x => x.Title)
+                    .Select(x => x.Title.Trim())
                     .Distinct()
+                    .OrderBy(x => x)
+            );
+        }
+
+        [HttpGet]
+        [Route("ListAll")]
+        public IActionResult ListAll()
+        {
+            return View(
+                "ListView",
+                this.calendarProxyService
+                    .CalendarItems
+                    .Select(x => x.Title.Trim())
+                    .Distinct()
+                    .OrderBy(x => x)
             );
         }
     }
