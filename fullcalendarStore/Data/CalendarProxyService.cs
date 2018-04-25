@@ -56,10 +56,16 @@ namespace fullcalendarStore.Data
             return query;
         }
 
-        public void TryUpdateCalendarItemsCache(string requestdata = "from=0&to=31", bool clearCache = true)
+        public void TryUpdateCalendarItemsCache(string requestdata = null, bool clearCache = true)
         {
             try
             {
+                if (String.IsNullOrEmpty(requestdata))
+                {
+                    var fromInt = -(1+(int)DateTime.Today.DayOfWeek); // start with begin of week
+                    requestdata = $"from={fromInt}&to=31";
+                }
+
                 var settings = new JsonSerializerSettings
                 {
                     DateFormatString = "YYYY-MM-DD",
@@ -76,7 +82,7 @@ namespace fullcalendarStore.Data
                     {
                         if (clearCache)
                         {
-                            this.calendarItems = response.Data;
+                            this.calendarItems = response.Data.OrderBy(x => x.Start);
                         }
                         else
                         {
