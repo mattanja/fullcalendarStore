@@ -14,6 +14,7 @@ namespace fullcalendarStore.Data
     public class CalendarProxyService
     {
         private IEnumerable<CalendarItem> calendarItems = new CalendarItem[] { };
+        private DateTime rangeEnd;
         private IAppSettings appSettings;
         private Timer refreshTimer;
 
@@ -22,7 +23,7 @@ namespace fullcalendarStore.Data
             this.appSettings = appSettings;
 
             // Update now and every 1h
-            refreshTimer = new Timer(this.RefreshTimerCallback, null, 0, 1000*60*60);
+            refreshTimer = new Timer(this.RefreshTimerCallback, null, 0, 1000 * 60 * 60);
         }
 
         private void RefreshTimerCallback(object state)
@@ -32,6 +33,14 @@ namespace fullcalendarStore.Data
 
         public IEnumerable<CalendarItem> GetCalendarItems(DateTime? start, DateTime? end)
         {
+            if (end.HasValue && this.rangeEnd < end.Value)
+            {
+                // Get new range
+                var fromInt = (this.rangeEnd - DateTime.Today).Days;
+                var toInt = (end.Value - this.rangeEnd).Days + fromInt;
+                TryUpdateCalendarItemsCache(requestdata: $"from={fromInt}&to={toInt}", clearCache: false);
+            }
+
             var query = this.calendarItems.AsQueryable();
 
             if (start.HasValue)
@@ -47,7 +56,7 @@ namespace fullcalendarStore.Data
             return query;
         }
 
-        public void TryUpdateCalendarItemsCache()
+        public void TryUpdateCalendarItemsCache(string requestdata = "from=0&to=31", bool clearCache = true)
         {
             try
             {
@@ -59,12 +68,22 @@ namespace fullcalendarStore.Data
 
                 using (WebClient wc = new WebClient())
                 {
-                    var json = wc.UploadString(appSettings.CalendarProxyFetchUrl, "");
+                    wc.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+                    var json = wc.UploadString(appSettings.CalendarProxyFetchUrl, requestdata);
                     var response = JsonConvert.DeserializeObject<CtResponse>(json, settings);
 
                     if (response.Status == "success")
                     {
-                        this.calendarItems = response.Data;
+                        if (clearCache)
+                        {
+                            this.calendarItems = response.Data;
+                        }
+                        else
+                        {
+                            this.calendarItems = this.calendarItems.Union(response.Data, new CalendarItemComparer());
+                        }
+
+                        this.rangeEnd = response.Data.Select(x => x.Start).Max(); // using start date on purpose
                     }
                     else
                     {
@@ -114,6 +133,19 @@ namespace fullcalendarStore.Data
         {
             var resolved = this.PropertyMappings.TryGetValue(propertyName, out string resolvedName);
             return (resolved) ? resolvedName : base.ResolvePropertyName(propertyName);
+        }
+    }
+
+    internal class CalendarItemComparer : IEqualityComparer<CalendarItem>
+    {
+        public bool Equals(CalendarItem x, CalendarItem y)
+        {
+            return GetHashCode(x) == GetHashCode(y);
+        }
+
+        public int GetHashCode(CalendarItem obj)
+        {
+            return obj.Start.GetHashCode()*3 + obj.Title.GetHashCode()*5 + obj.End.GetHashCode()*7;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using fullcalendarStore.Models;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,11 @@ namespace fullcalendarStore.Configuration
         /// Url to fetch proxied calendar items from.
         /// </summary>
         String CalendarProxyFetchUrl { get; }
+        
+        /// <summary>
+        /// Default text to display if list is empty.
+        /// </summary>
+        String EmptyListDefaultEntry { get; }
     }
 
     public class AppSettings : IAppSettings
@@ -29,6 +35,7 @@ namespace fullcalendarStore.Configuration
         private string calendarInitialDisplayDate = null;
         private int calendarFirstDay = 0;
         private string calendarProxyFetchUrl = String.Empty;
+        private string emptyListDefaultEntry = String.Empty;
 
         public AppSettings(IConfiguration configuration)
         {
@@ -48,6 +55,11 @@ namespace fullcalendarStore.Configuration
                 {
                     calendarProxyFetchUrl = configuration["CalendarProxyFetchUrl"];
                 }
+
+                if (!String.IsNullOrWhiteSpace(configuration["EmptyListDefaultEntry"]))
+                {
+                    emptyListDefaultEntry = configuration["EmptyListDefaultEntry"];
+                }
             }
             catch (Exception)
             {
@@ -60,5 +72,7 @@ namespace fullcalendarStore.Configuration
         public int CalendarFirstDay => calendarFirstDay;
 
         public string CalendarProxyFetchUrl => calendarProxyFetchUrl;
+
+        public string EmptyListDefaultEntry => emptyListDefaultEntry;
     }
 }
