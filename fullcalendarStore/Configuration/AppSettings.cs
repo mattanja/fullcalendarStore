@@ -28,6 +28,12 @@ namespace fullcalendarStore.Configuration
         /// Default text to display if list is empty.
         /// </summary>
         String EmptyListDefaultEntry { get; }
+
+        /// <summary>
+        /// Local Time Zone
+        /// </summary>
+        TimeZoneInfo LocalTimeZone { get; }
+
     }
 
     public class AppSettings : IAppSettings
@@ -36,6 +42,7 @@ namespace fullcalendarStore.Configuration
         private int calendarFirstDay = 0;
         private string calendarProxyFetchUrl = String.Empty;
         private string emptyListDefaultEntry = String.Empty;
+        private TimeZoneInfo localTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Berlin");
 
         public AppSettings(IConfiguration configuration)
         {
@@ -74,5 +81,7 @@ namespace fullcalendarStore.Configuration
         public string CalendarProxyFetchUrl => calendarProxyFetchUrl;
 
         public string EmptyListDefaultEntry => emptyListDefaultEntry;
+
+        public TimeZoneInfo LocalTimeZone => localTimeZone;
     }
 }

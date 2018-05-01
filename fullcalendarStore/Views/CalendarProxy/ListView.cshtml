@@ -31,14 +31,11 @@
     </style>
 </head>
 <body>
-
-
-<ul>
-    @foreach (var item in Model)
-    {
-        <li>@Html.DisplayFor(modelItem => item)</li>
-    }
-</ul>
-
+    <ul>
+        @foreach (var item in Model)
+        {
+            <li>@Html.DisplayFor(modelItem => item)</li>
+        }
+    </ul>
 </body>
 </html>

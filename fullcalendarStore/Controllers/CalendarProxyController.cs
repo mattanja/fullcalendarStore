@@ -62,7 +62,10 @@ namespace fullcalendarStore.Controllers
         public IEnumerable<string> Current()
         {
             var model = this.calendarProxyService
-                .GetCalendarItems(DateTime.Now, DateTime.Now)
+                .GetCalendarItems(
+                    TimeZoneInfo.ConvertTimeFromUtc(new DateTime(DateTime.UtcNow.Ticks, DateTimeKind.Utc), this.appSettings.LocalTimeZone),
+                    TimeZoneInfo.ConvertTimeFromUtc(new DateTime(DateTime.UtcNow.Ticks, DateTimeKind.Utc), this.appSettings.LocalTimeZone)
+                )
                 .Select(x => x.Title.Trim())
                 .Distinct()
                 .OrderBy(x => x);
@@ -80,7 +83,10 @@ namespace fullcalendarStore.Controllers
         public IActionResult CurrentView()
         {
             var model = this.calendarProxyService
-                .GetCalendarItems(DateTime.Now, DateTime.Now)
+                .GetCalendarItems(
+                    TimeZoneInfo.ConvertTimeFromUtc(new DateTime(DateTime.UtcNow.Ticks, DateTimeKind.Utc), this.appSettings.LocalTimeZone),
+                    TimeZoneInfo.ConvertTimeFromUtc(new DateTime(DateTime.UtcNow.Ticks, DateTimeKind.Utc), this.appSettings.LocalTimeZone)
+                )
                 .Select(x => x.Title.Trim())
                 .Distinct()
                 .OrderBy(x => x);
