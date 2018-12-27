@@ -99,6 +99,7 @@ namespace fullcalendarStore.Data
             }
             catch (Exception ex)
             {
+                Console.Write($"Exception while getting calendar items, url: {appSettings.CalendarProxyFetchUrl}, request data: {requestdata}");
                 Console.Write(ex.ToString());
             }
         }
